@@ -2,9 +2,6 @@ LIBNAME CHIS2009 "/home/u59641456/EPI207";
 /***Data cleaning***/
 /*Formatting variables to be included in analysis*/
 Proc Format;
-VALUE  SRSEX		/*GENDER*/
-       1            = "MALE"
-       2            = "FEMALE";
 Value  AD1_cfmt  	/*Age When Period Started, Categorical*/
        1            = "8-11 years"
        2            = "12-13 years"
@@ -29,10 +26,10 @@ Run;
 Data CHIS2009.adult_clean;
 Set CHIS2009.adult (Keep = PUF_ID SRSEX AD1 AB22 AB51 AB81 AB23_P
      						SRAGE_P OMBSRREO rakedw0 rakedw1-rakedw80);
+     						
 /***Inclusion criteria/Exclusion criteria***/
 
 If SRSEX=1 then delete; /*only include female adults*/
-
 If AD1=96 then delete;  /*Exclude women who never started menstrual cycle*/
 If AD1=-2 then delete;  /*Exclude women with no period info*/
 									
@@ -70,22 +67,8 @@ If AB81=1 Then gdm=1;
 If AB81=-1 or AB81=2 or AB81=3 Then gdm=0;
 
 FORMAT
-SRSEX SRSEX.
 AD1_c AD1_cfmt.
 age_c age_cfmt. 
 race_c race_cfmt.
 dm dm2 gdm yesnofmt.;
 RUN;
-
-/*proc freq of final variables included in analysis - sample size = 27,906*/
-Proc Freq Data=CHIS2009.adult_clean;
-Table  AD1_C Age_C Race_C dm dm2 gdm;
-Format AD1_c AD1_cfmt. age_c age_cfmt. race_c race_cfmt.
-       dm dm2 gdm yesnofmt.;
-Label AD1_C  = 'Age When Period Started, Categorical (8-11, 12-13, 14-18)'
-	  age_c  = 'Categorical Age'
-      race_c = 'Race/Ethnicity'
-      dm     = 'Had Any Type Diabetes or not'
-      dm2    = 'Had Type2 Diabetes or not'
-      gdm    = 'Had Gestational Diabetes or not';
-Run;
